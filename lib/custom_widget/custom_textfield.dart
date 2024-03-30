@@ -6,6 +6,7 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onTap;
   final bool readOnly;
   final bool autofocus;
+  final Icon? prefixIcon;
 
   const CustomTextField({
     super.key,
@@ -14,7 +15,9 @@ class CustomTextField extends StatelessWidget {
     this.onTap,
     this.readOnly = false,
     this.autofocus = false,
+    this.prefixIcon,
   });
+
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,7 @@ class CustomTextField extends StatelessWidget {
       onTap: onTap,
       readOnly: readOnly,
       decoration: InputDecoration(
+        prefixIcon: prefixIcon,
         labelText: label,
         border: const OutlineInputBorder(),
       ),

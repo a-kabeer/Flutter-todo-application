@@ -65,6 +65,7 @@ class _ToDoViewState extends State<ToDoView> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CustomTextField(
+                    prefixIcon: const Icon(Icons.list_alt),
                     controller: TaskNameController,
                     label: 'Task Name',
                     autofocus: true,
@@ -73,6 +74,7 @@ class _ToDoViewState extends State<ToDoView> {
                     height: 20,
                   ),
                   CustomTextField(
+                    prefixIcon: const Icon(Icons.notes),
                     controller: TaskDescriptionController,
                     label: 'Task Description',
                   ),
@@ -80,6 +82,7 @@ class _ToDoViewState extends State<ToDoView> {
                     height: 20,
                   ),
                   CustomDropdown(
+                    prefixIcon: const Icon(Icons.flag),
                     initialValue: TaskPriorityController.text,
                     label: 'Select Priority',
                     options: const ['Urgent', 'High', 'Normal', 'Low'],
@@ -93,6 +96,7 @@ class _ToDoViewState extends State<ToDoView> {
                     height: 20,
                   ),
                   CustomTextField(
+                    prefixIcon: const Icon(Icons.calendar_today),
                     controller: TaskDueDateController,
                     label: 'Task Due Date',
                     readOnly: true,
@@ -146,6 +150,7 @@ class _ToDoViewState extends State<ToDoView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomTextField(
+                      prefixIcon: const Icon(Icons.list_alt),
                       controller: TaskNameController,
                       label: 'Task Name',
                       autofocus: true,
@@ -154,6 +159,7 @@ class _ToDoViewState extends State<ToDoView> {
                       height: 20,
                     ),
                     CustomTextField(
+                      prefixIcon: const Icon(Icons.notes),
                       controller: TaskDescriptionController,
                       label: 'Task Description',
                     ),
@@ -161,6 +167,7 @@ class _ToDoViewState extends State<ToDoView> {
                       height: 20,
                     ),
                     CustomDropdown(
+                      prefixIcon: const Icon(Icons.flag),
                       initialValue: 'Normal',
                       label: 'Select Priority',
                       options: const ['Urgent', 'High', 'Normal', 'Low'],
@@ -174,6 +181,7 @@ class _ToDoViewState extends State<ToDoView> {
                       height: 20,
                     ),
                     CustomTextField(
+                      prefixIcon: const Icon(Icons.calendar_today),
                       controller: TaskDueDateController,
                       label: 'Task Due Date',
                       readOnly: true,
@@ -272,7 +280,7 @@ class _ToDoViewState extends State<ToDoView> {
         appBar: AppBar(
           title: const Text('To Do Application'),
           backgroundColor: Colors.blue,
-          titleTextStyle: const TextStyle(color: Colors.white),
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
         ),
         body: Container(
           margin: const EdgeInsets.only(bottom: 2),
@@ -282,9 +290,9 @@ class _ToDoViewState extends State<ToDoView> {
                     taskName: taskList[index]['taskName'],
                     taskDescription: taskList[index]['taskDescription']
                                 .length <=
-                            5
+                            15
                         ? taskList[index]['taskDescription']
-                        : '${taskList[index]['taskDescription'].toString().substring(0, 5)}...',
+                        : '${taskList[index]['taskDescription'].toString().substring(0, 15)}...',
                     taskPriority: taskList[index]['taskPriority'],
                     taskDueDate: taskList[index]['taskDueDate'],
                     onViewTap: () {
@@ -304,7 +312,7 @@ class _ToDoViewState extends State<ToDoView> {
               clearField();
               addTask();
             },
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_task),
             label: const Text('Add')));
   }
 }

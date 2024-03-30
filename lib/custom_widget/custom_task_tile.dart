@@ -48,9 +48,7 @@ class TaskTile extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(taskDescription.length <= 15
-                  ? taskDescription
-                  : '${taskDescription.substring(0, 15)}...'),
+              Text(taskDescription),
               Text(taskDueDate),
             ],
           ),

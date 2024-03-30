@@ -4,6 +4,7 @@ class CustomDropdown extends StatefulWidget {
   final String label;
   final List<String> options;
   final String initialValue;
+  final Icon? prefixIcon;
   final Function(String?) onChanged;
 
   const CustomDropdown({
@@ -12,6 +13,7 @@ class CustomDropdown extends StatefulWidget {
     required this.options,
     required this.initialValue,
     required this.onChanged,
+    this.prefixIcon,
   });
 
   @override
@@ -32,6 +34,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         labelText: widget.label,
+        prefixIcon: widget.prefixIcon,
         border: OutlineInputBorder(),
       ),
       value: _currentValue,
