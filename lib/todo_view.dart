@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:todo/custom_widget/custom_dropdown.dart';
+import 'package:todo/custom_widget/custom_task_tile.dart';
+import 'package:todo/custom_widget/custom_textfield.dart';
 
 class ToDoView extends StatefulWidget {
   const ToDoView({super.key});
@@ -11,20 +13,12 @@ class ToDoView extends StatefulWidget {
 
 class _ToDoViewState extends State<ToDoView> {
   List<Map> taskList = [];
-  List<String> dropDownPriority = ['Urgent', 'High', 'Normal', 'Low'];
 
   final TextEditingController TaskNameController = TextEditingController();
   final TextEditingController TaskDescriptionController =
       TextEditingController();
   final TextEditingController TaskDueDateController = TextEditingController();
   final TextEditingController TaskPriorityController = TextEditingController();
-
-  // final TextEditingController _updateTaskNameController =
-  //     TextEditingController();
-  // final TextEditingController _updateTaskDescriptionController =
-  //     TextEditingController();
-  // final TextEditingController _updateTaskDueDate = TextEditingController();
-  // final TextEditingController _updateTaskPriority = TextEditingController();
 
   DateTime? selectedDateTime;
   Future<void> _selectDateTime(BuildContext context) async {
@@ -49,7 +43,7 @@ class _ToDoViewState extends State<ToDoView> {
             pickedTime.minute,
           );
           TaskDueDateController.text =
-              DateFormat('yyyy-MM-dd - HH:mm').format(selectedDateTime!);
+              DateFormat('dd-MMM - h:mm a').format(selectedDateTime!);
         });
       }
     }
@@ -65,30 +59,56 @@ class _ToDoViewState extends State<ToDoView> {
         builder: (context) {
           return AlertDialog(
             title: const Text('Update Task'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  autofocus: true,
-                  controller: TaskNameController,
-                ),
-                TextField(
-                  controller: TaskDescriptionController,
-                ),
-                TextField(
-                  controller: TaskPriorityController,
-                ),
-                TextField(
-                  controller: TaskDueDateController,
-                  readOnly: true,
-                  onTap: () {
-                    _selectDateTime(context);
-                  },
-                ),
-              ],
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomTextField(
+                    controller: TaskNameController,
+                    label: 'Task Name',
+                    autofocus: true,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTextField(
+                    controller: TaskDescriptionController,
+                    label: 'Task Description',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomDropdown(
+                    initialValue: TaskPriorityController.text,
+                    label: 'Select Priority',
+                    options: const ['Urgent', 'High', 'Normal', 'Low'],
+                    onChanged: (value) {
+                      setState(() {
+                        TaskPriorityController.text = value.toString();
+                      });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTextField(
+                    controller: TaskDueDateController,
+                    label: 'Task Due Date',
+                    readOnly: true,
+                    onTap: () {
+                      _selectDateTime(context);
+                    },
+                  ),
+                ],
+              ),
             ),
             actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close')),
               ElevatedButton(
                   onPressed: () {
                     taskList[index]['taskName'] = TaskNameController.text;
@@ -101,11 +121,6 @@ class _ToDoViewState extends State<ToDoView> {
                     setState(() {});
                   },
                   child: const Text('Update')),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Close'))
             ],
           );
         });
@@ -119,34 +134,61 @@ class _ToDoViewState extends State<ToDoView> {
   }
 
   addTask() {
+    TaskPriorityController.text = 'Normal';
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: const Text('Add Task'),
-            content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    autofocus: true,
-                    controller: TaskNameController,
-                  ),
-                  TextField(
-                    controller: TaskDescriptionController,
-                  ),
-                  TextField(
-                    controller: TaskPriorityController,
-                  ),
-                  TextField(
-                    controller: TaskDueDateController,
-                    readOnly: true,
-                    onTap: () {
-                      _selectDateTime(context);
-                    },
-                  ),
-                ]),
+            content: SingleChildScrollView(
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      controller: TaskNameController,
+                      label: 'Task Name',
+                      autofocus: true,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    CustomTextField(
+                      controller: TaskDescriptionController,
+                      label: 'Task Description',
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    CustomDropdown(
+                      initialValue: 'Normal',
+                      label: 'Select Priority',
+                      options: const ['Urgent', 'High', 'Normal', 'Low'],
+                      onChanged: (value) {
+                        setState(() {
+                          TaskPriorityController.text = value.toString();
+                        });
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    CustomTextField(
+                      controller: TaskDueDateController,
+                      label: 'Task Due Date',
+                      readOnly: true,
+                      onTap: () {
+                        _selectDateTime(context);
+                      },
+                    ),
+                  ]),
+            ),
             actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close')),
               ElevatedButton(
                   onPressed: () {
                     taskList.add(
@@ -161,11 +203,6 @@ class _ToDoViewState extends State<ToDoView> {
                     setState(() {});
                   },
                   child: const Text('Add')),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Close'))
             ],
           );
         });
@@ -188,16 +225,16 @@ class _ToDoViewState extends State<ToDoView> {
             actions: [
               ElevatedButton(
                   onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('No')),
+              ElevatedButton(
+                  onPressed: () {
                     taskList.removeAt(index);
                     Navigator.pop(context);
                     setState(() {});
                   },
                   child: const Text('Yes')),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('No'))
             ],
           );
         });
@@ -241,54 +278,24 @@ class _ToDoViewState extends State<ToDoView> {
           margin: const EdgeInsets.only(bottom: 2),
           child: ListView.builder(
               itemBuilder: (context, index) {
-                return ListTile(
-                  tileColor: Colors.white38,
-                  leading: CircleAvatar(
-                    radius: 25,
-                    backgroundColor: dropDownPriority[0] == 'red'
-                        ? Colors.red
-                        : Colors.green,
-                    foregroundColor: Colors.amber,
-                    child: const Icon(
-                      Icons.flag,
-                    ),
-                  ),
-                  subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(taskList[index]['taskDescription'].length <= 5
-                          ? taskList[index]['taskDescription']
-                          : '${taskList[index]['taskDescription'].toString().substring(0, 5)}...'),
-                      const Text('-'),
-                      Text(taskList[index]['taskPriority']),
-                      const Text('-'),
-                      Text(taskList[index]['taskDueDate']),
-                    ],
-                  ),
-                  onTap: () {
-                    viewTask(index);
-                  },
-                  title: Text(taskList[index]['taskName']),
-                  trailing: Wrap(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          updateTask(index);
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          deleteTask(index);
-                        },
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                        ),
-                      )
-                    ],
-                  ),
-                );
+                return TaskTile(
+                    taskName: taskList[index]['taskName'],
+                    taskDescription: taskList[index]['taskDescription']
+                                .length <=
+                            5
+                        ? taskList[index]['taskDescription']
+                        : '${taskList[index]['taskDescription'].toString().substring(0, 5)}...',
+                    taskPriority: taskList[index]['taskPriority'],
+                    taskDueDate: taskList[index]['taskDueDate'],
+                    onViewTap: () {
+                      viewTask(index);
+                    },
+                    onEditTap: () {
+                      updateTask(index);
+                    },
+                    onDeleteTap: () {
+                      deleteTask(index);
+                    });
               },
               itemCount: taskList.length),
         ),
