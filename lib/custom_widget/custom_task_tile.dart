@@ -6,8 +6,7 @@ class TaskTile extends StatelessWidget {
   final String taskPriority;
   final String taskDueDate;
   final VoidCallback onViewTap;
-  final VoidCallback onEditTap;
-  final VoidCallback onDeleteTap;
+  final VoidCallback onLongPress;
 
   const TaskTile({
     super.key,
@@ -16,8 +15,7 @@ class TaskTile extends StatelessWidget {
     required this.taskPriority,
     required this.taskDueDate,
     required this.onViewTap,
-    required this.onEditTap,
-    required this.onDeleteTap,
+    required this.onLongPress,
   });
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
@@ -48,24 +46,18 @@ class TaskTile extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(taskDescription),
-              Text(taskDueDate),
+              Text(
+                taskDescription,
+                style: const TextStyle(fontSize: 11),
+              ),
+              Text(taskDueDate, style: const TextStyle(fontSize: 12)),
             ],
           ),
+          onLongPress: onLongPress,
           onTap: onViewTap,
-          title: Text(taskName),
-          trailing: Wrap(
-            children: [
-              IconButton(
-                  onPressed: onEditTap,
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Colors.blue,
-                  )),
-              IconButton(
-                  onPressed: onDeleteTap,
-                  icon: const Icon(Icons.delete, color: Colors.red)),
-            ],
+          title: Text(
+            taskName,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
         const SizedBox(

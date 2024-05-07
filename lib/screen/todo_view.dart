@@ -15,6 +15,7 @@ class ToDoView extends StatefulWidget {
 
 class _ToDoViewState extends State<ToDoView> {
   late ApiService api;
+
   @override
   void initState() {
     super.initState();
@@ -22,6 +23,9 @@ class _ToDoViewState extends State<ToDoView> {
     loadTasks();
   }
 
+  int? selectedTaskIndex;
+
+  bool showOptions = false;
   List taskList = [];
   void loadTasks() async {
     try {
@@ -314,33 +318,85 @@ class _ToDoViewState extends State<ToDoView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('To Do Application'),
+          title: showOptions && selectedTaskIndex != null
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    const Text('To Do Application',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 20)),
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
+                      onPressed: () {
+                        deleteTask(selectedTaskIndex);
+                        setState(() {
+                          showOptions = false;
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.white),
+                      onPressed: () {
+                        updateTask(selectedTaskIndex);
+                        setState(() {
+                          showOptions = false;
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        setState(() {
+                          showOptions = false;
+                        });
+                      },
+                    )
+                  ],
+                )
+              : const Text('To Do Application'),
           backgroundColor: Colors.blue,
           titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
         ),
-        body: Container(
-          margin: const EdgeInsets.only(bottom: 2),
-          child: ListView.builder(
-              itemBuilder: (context, index) {
-                return TaskTile(
-                    taskName: taskList[index].taskName,
-                    taskDescription: taskList[index].taskDescription.length <=
-                            15
-                        ? taskList[index].taskDescription
-                        : '${taskList[index].taskDescriptiontoString().substring(0, 15)}...',
-                    taskPriority: taskList[index].taskPriority,
-                    taskDueDate: taskList[index].taskDueDate,
-                    onViewTap: () {
-                      viewTask(index);
-                    },
-                    onEditTap: () {
-                      updateTask(index);
-                    },
-                    onDeleteTap: () {
-                      deleteTask(index);
-                    });
+        body: GestureDetector(
+          onTap: () {
+            setState(() {
+              showOptions = false;
+            });
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 2),
+            child: GestureDetector(
+              onHorizontalDragStart: (DragStartDetails details) {
+                setState(() {
+                  showOptions = false;
+                });
               },
-              itemCount: taskList.length),
+              child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    return TaskTile(
+                      taskName: taskList[index].taskName,
+                      taskDescription: taskList[index].taskDescription.length <=
+                              30
+                          ? taskList[index].taskDescription
+                          : '${taskList[index].taskDescription.toString().substring(0, 30)}...',
+                      taskPriority: taskList[index].taskPriority,
+                      taskDueDate: taskList[index].taskDueDate,
+                      onViewTap: () {
+                        viewTask(index);
+                      },
+                      onLongPress: () {
+                        showOptions = true;
+                        selectedTaskIndex = index;
+                        setState(() {});
+                      },
+                    );
+                  },
+                  itemCount: taskList.length),
+            ),
+          ),
         ),
         floatingActionButton: ElevatedButton.icon(
             onPressed: () {
