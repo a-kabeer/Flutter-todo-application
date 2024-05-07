@@ -14,9 +14,11 @@ class ToDoView extends StatefulWidget {
 }
 
 class _ToDoViewState extends State<ToDoView> {
+  late ApiService api;
   @override
   void initState() {
     super.initState();
+    api = ApiService();
     loadTasks();
   }
 
@@ -30,7 +32,6 @@ class _ToDoViewState extends State<ToDoView> {
     }
   }
 
-  ApiService api = ApiService();
   Task task = Task(
       taskId: '_id',
       taskName: 'taskName',
@@ -134,7 +135,7 @@ class _ToDoViewState extends State<ToDoView> {
                   },
                   child: const Text('Close')),
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // taskList.add(
                     //   {
                     //     task.taskName: TaskNameController.text,
@@ -149,7 +150,7 @@ class _ToDoViewState extends State<ToDoView> {
                         taskDueDate: TaskDueDateController.text,
                         taskPriority: TaskPriorityController.text);
                     Navigator.pop(context);
-                    api.createTask(newTask);
+                    await api.createTask(newTask);
                     loadTasks();
                     setState(() {});
                   },
@@ -250,7 +251,7 @@ class _ToDoViewState extends State<ToDoView> {
                   },
                   child: const Text('Close')),
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Task updatedTask = taskList[index];
                     updatedTask.taskName = TaskNameController.text;
                     updatedTask.taskDescription =
@@ -259,7 +260,7 @@ class _ToDoViewState extends State<ToDoView> {
                     updatedTask.taskPriority = TaskPriorityController.text;
                     Navigator.pop(context);
 
-                    api.updateTask(updatedTask.taskId ?? "", updatedTask);
+                    await api.updateTask(updatedTask.taskId ?? "", updatedTask);
                     setState(() {});
                   },
                   child: const Text('Update')),
@@ -289,9 +290,9 @@ class _ToDoViewState extends State<ToDoView> {
                   },
                   child: const Text('No')),
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Task deleteTask = taskList[index];
-                    api.deleteTask(deleteTask.taskId ?? "");
+                    await api.deleteTask(deleteTask.taskId ?? "");
                     Navigator.pop(context);
                     loadTasks();
                     setState(() {});
