@@ -4,7 +4,7 @@ import 'package:todo/screen/todo_api_model.dart';
 
 class ApiService {
   final String baseUrl =
-      'https://crudcrud.com/api/a1c5014e53294f12b926bbfddc21c83d/unicorns';
+      'https://crudcrud.com/api/a1c5014e53294f12b926bbfddc21c83d';
   final String resource = 'unicorns';
 
   Future<List<Task>> fetchTasks() async {
