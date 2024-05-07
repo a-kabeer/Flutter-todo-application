@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:todo/custom_widget/custom_dropdown.dart';
 import 'package:todo/custom_widget/custom_task_tile.dart';
 import 'package:todo/custom_widget/custom_textfield.dart';
+import 'package:todo/screen/todo_api_model.dart';
+import 'package:todo/screen/todo_api_service.dart';
 
 class ToDoView extends StatefulWidget {
   const ToDoView({super.key});
@@ -12,7 +14,29 @@ class ToDoView extends StatefulWidget {
 }
 
 class _ToDoViewState extends State<ToDoView> {
-  List<Map> taskList = [];
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
+  }
+
+  List taskList = [];
+  void loadTasks() async {
+    try {
+      taskList = await api.fetchTasks();
+      setState(() {});
+    } catch (e) {
+      print("Failed to load tasks: $e");
+    }
+  }
+
+  ApiService api = ApiService();
+  Task task = Task(
+      taskId: '_id',
+      taskName: 'taskName',
+      taskDescription: 'taskDescription',
+      taskDueDate: 'taskDueDate',
+      taskPriority: 'taskPriority');
 
   final TextEditingController TaskNameController = TextEditingController();
   final TextEditingController TaskDescriptionController =
@@ -47,94 +71,6 @@ class _ToDoViewState extends State<ToDoView> {
         });
       }
     }
-  }
-
-  updateTask(index) {
-    TaskNameController.text = taskList[index]['taskName'];
-    TaskDescriptionController.text = taskList[index]['taskDescription'];
-    TaskDueDateController.text = taskList[index]['taskDueDate'];
-    TaskPriorityController.text = taskList[index]['taskPriority'];
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Update Task'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomTextField(
-                    prefixIcon: const Icon(Icons.list_alt),
-                    controller: TaskNameController,
-                    label: 'Task Name',
-                    autofocus: true,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  CustomTextField(
-                    prefixIcon: const Icon(Icons.notes),
-                    controller: TaskDescriptionController,
-                    label: 'Task Description',
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  CustomDropdown(
-                    prefixIcon: const Icon(Icons.flag),
-                    initialValue: TaskPriorityController.text,
-                    label: 'Select Priority',
-                    options: const ['Urgent', 'High', 'Normal', 'Low'],
-                    onChanged: (value) {
-                      setState(() {
-                        TaskPriorityController.text = value.toString();
-                      });
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  CustomTextField(
-                    prefixIcon: const Icon(Icons.calendar_today),
-                    controller: TaskDueDateController,
-                    label: 'Task Due Date',
-                    readOnly: true,
-                    onTap: () {
-                      _selectDateTime(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Close')),
-              ElevatedButton(
-                  onPressed: () {
-                    taskList[index]['taskName'] = TaskNameController.text;
-                    taskList[index]['taskDescription'] =
-                        TaskDescriptionController.text;
-                    taskList[index]['taskDueDate'] = TaskDueDateController.text;
-                    taskList[index]['taskPriority'] =
-                        TaskPriorityController.text;
-                    Navigator.pop(context);
-                    setState(() {});
-                  },
-                  child: const Text('Update')),
-            ],
-          );
-        });
-  }
-
-  clearField() {
-    TaskNameController.clear();
-    TaskDescriptionController.clear();
-    TaskDueDateController.clear();
-    TaskPriorityController.clear();
   }
 
   addTask() {
@@ -199,18 +135,134 @@ class _ToDoViewState extends State<ToDoView> {
                   child: const Text('Close')),
               ElevatedButton(
                   onPressed: () {
-                    taskList.add(
-                      {
-                        'taskName': TaskNameController.text,
-                        'taskDescription': TaskDescriptionController.text,
-                        'taskDueDate': TaskDueDateController.text,
-                        'taskPriority': TaskPriorityController.text
-                      },
-                    );
+                    // taskList.add(
+                    //   {
+                    //     task.taskName: TaskNameController.text,
+                    //     task.taskDescription: TaskDescriptionController.text,
+                    //     task.taskDueDate: TaskDueDateController.text,
+                    //     task.taskPriority: TaskPriorityController.text
+                    //   },
+                    // );
+                    Task newTask = Task(
+                        taskName: TaskNameController.text,
+                        taskDescription: TaskDescriptionController.text,
+                        taskDueDate: TaskDueDateController.text,
+                        taskPriority: TaskPriorityController.text);
                     Navigator.pop(context);
+                    api.createTask(newTask);
+                    loadTasks();
                     setState(() {});
                   },
                   child: const Text('Add')),
+            ],
+          );
+        });
+  }
+
+  viewTask(index) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("${taskList[index].taskName}"),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Description: ${taskList[index].taskDescription}"),
+                Text("Priority: ${taskList[index].taskPriority}"),
+                Text("Due Date: ${taskList[index].taskDueDate}")
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close'))
+            ],
+          );
+        });
+  }
+
+  updateTask(index) {
+    TaskNameController.text = taskList[index].taskName;
+    TaskDescriptionController.text = taskList[index].taskDescription;
+    TaskDueDateController.text = taskList[index].taskDueDate;
+    TaskPriorityController.text = taskList[index].taskPriority;
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Update Task'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomTextField(
+                    prefixIcon: const Icon(Icons.list_alt),
+                    controller: TaskNameController,
+                    label: 'Task Name',
+                    autofocus: true,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTextField(
+                    prefixIcon: const Icon(Icons.notes),
+                    controller: TaskDescriptionController,
+                    label: 'Task Description',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomDropdown(
+                    prefixIcon: const Icon(Icons.flag),
+                    initialValue: TaskPriorityController.text,
+                    label: 'Select Priority',
+                    options: const ['Urgent', 'High', 'Normal', 'Low'],
+                    onChanged: (value) {
+                      setState(() {
+                        TaskPriorityController.text = value.toString();
+                      });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTextField(
+                    prefixIcon: const Icon(Icons.calendar_today),
+                    controller: TaskDueDateController,
+                    label: 'Task Due Date',
+                    readOnly: true,
+                    onTap: () {
+                      _selectDateTime(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close')),
+              ElevatedButton(
+                  onPressed: () {
+                    Task updatedTask = taskList[index];
+                    updatedTask.taskName = TaskNameController.text;
+                    updatedTask.taskDescription =
+                        TaskDescriptionController.text;
+                    updatedTask.taskDueDate = TaskDueDateController.text;
+                    updatedTask.taskPriority = TaskPriorityController.text;
+                    Navigator.pop(context);
+
+                    api.updateTask(updatedTask.taskId ?? "", updatedTask);
+                    setState(() {});
+                  },
+                  child: const Text('Update')),
             ],
           );
         });
@@ -227,7 +279,7 @@ class _ToDoViewState extends State<ToDoView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text('Are you sure you want to delete?'),
-                Text('${taskList[index]['taskName']}'),
+                Text('${taskList[index].taskName}'),
               ],
             ),
             actions: [
@@ -238,8 +290,10 @@ class _ToDoViewState extends State<ToDoView> {
                   child: const Text('No')),
               ElevatedButton(
                   onPressed: () {
-                    taskList.removeAt(index);
+                    Task deleteTask = taskList[index];
+                    api.deleteTask(deleteTask.taskId ?? "");
                     Navigator.pop(context);
+                    loadTasks();
                     setState(() {});
                   },
                   child: const Text('Yes')),
@@ -248,30 +302,11 @@ class _ToDoViewState extends State<ToDoView> {
         });
   }
 
-  viewTask(index) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("${taskList[index]['taskName']}"),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Description: ${taskList[index]['taskDescription']}"),
-                Text("Priority: ${taskList[index]['taskPriority']}"),
-                Text("Due Date: ${taskList[index]['taskDueDate']}")
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Close'))
-            ],
-          );
-        });
+  clearField() {
+    TaskNameController.clear();
+    TaskDescriptionController.clear();
+    TaskDueDateController.clear();
+    TaskPriorityController.clear();
   }
 
   @override
@@ -287,14 +322,13 @@ class _ToDoViewState extends State<ToDoView> {
           child: ListView.builder(
               itemBuilder: (context, index) {
                 return TaskTile(
-                    taskName: taskList[index]['taskName'],
-                    taskDescription: taskList[index]['taskDescription']
-                                .length <=
+                    taskName: taskList[index].taskName,
+                    taskDescription: taskList[index].taskDescription.length <=
                             15
-                        ? taskList[index]['taskDescription']
-                        : '${taskList[index]['taskDescription'].toString().substring(0, 15)}...',
-                    taskPriority: taskList[index]['taskPriority'],
-                    taskDueDate: taskList[index]['taskDueDate'],
+                        ? taskList[index].taskDescription
+                        : '${taskList[index].taskDescriptiontoString().substring(0, 15)}...',
+                    taskPriority: taskList[index].taskPriority,
+                    taskDueDate: taskList[index].taskDueDate,
                     onViewTap: () {
                       viewTask(index);
                     },
